@@ -45,6 +45,7 @@ class UserSchema(SQLAlchemyAutoSchema):
 user_schema = UserSchema()
 
 class UserLogin(Resource):
+    @jwt_required
     def get(self):
         return current_user.to_dict()
 
@@ -91,7 +92,7 @@ class UserById(Resource):
     def delete(self, id):
         User.query.filter_by(id = id).delete()
         db.session.commit()
-        return {'detail': 'User has been deleted successfully'}
+        return jsonify({'detail': 'User has been deleted successfully'})
 
 api.add_resource(UserLogin, '/login')
 api.add_resource(UsersRescources, '/users')

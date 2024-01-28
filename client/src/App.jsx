@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import BooksList from "./Components/BooksList";
@@ -7,19 +7,21 @@ import AddBooks from "./Components/AddBooks";
 import EditBook from "./Components/EditBook";
 import Users from "./Components/Users";
 import Signup from "./Components/Signup";
-import injectContext from "./Store/appContext";
+import injectContext, { Context } from "./Store/appContext";
 
 function App() {
   const [data, setData] = useState([]);
+  const { store, actions } = useContext(Context);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5555/books")
-      .then((res) => res.json())
-      .then((data) => setData(data));
-  }, []);
+    if (store.token && store.token != "" && store.token != undefined)
+      fetch("http://127.0.0.1:5000/books")
+        .then((res) => res.json())
+        .then((data) => setData(data));
+  }, [store.token]);
 
   const addNewBook = (newBookData) => {
-    fetch("http://127.0.0.1:5555/books", {
+    fetch("http://127.0.0.1:5000/books", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -33,7 +35,7 @@ function App() {
   };
 
   const editBook = (bookData) => {
-    fetch("http://127.0.0.1:5555/books/" + bookData.id, {
+    fetch("http://127.0.0.1:5000/books/" + bookData.id, {
       method: "PATCH",
       headers: {
         Accept: "application/json",
@@ -47,7 +49,7 @@ function App() {
   };
 
   const deleteBook = (id) => {
-    fetch("http://127.0.0.1:5555/books/" + id, {
+    fetch("http://127.0.0.1:5000/books/" + id, {
       method: "DELETE",
     });
     let remaining = data.filter((item) => item.id !== id);
@@ -55,7 +57,7 @@ function App() {
   };
 
   const addUSer = (createNewUser) => {
-    fetch("http://127.0.0.1:5555/users", {
+    fetch("http://127.0.0.1:5000/users", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -75,7 +77,7 @@ function App() {
         <Route path="/login" element={<Users />} />
         <Route path="/signup" element={<Signup createUser={addUSer} />} />
         <Route
-          path="/"
+          path="/books"
           element={<BooksList books={data} deleteBook={deleteBook} />}
         />
         <Route path="/addbook" element={<AddBooks addBook={addNewBook} />} />

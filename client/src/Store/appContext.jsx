@@ -18,7 +18,7 @@ const injectContext = (PassedComponent) => {
     );
 
     useEffect(() => {
-      state.actions.getMessage();
+      state.actions.getBooks();
       state.actions.syncToken();
     }, []);
 

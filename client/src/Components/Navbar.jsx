@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Dialog } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Context } from "../Store/appContext";
 
 const Navbar = () => {
+  const { store, actions } = useContext(Context);
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -33,7 +36,7 @@ const Navbar = () => {
           </div>
           <div className="hidden lg:flex lg:gap-x-12">
             <Link
-              to="/"
+              to="/books"
               className="text-sm font-semibold leading-6 text-gray-900"
             >
               Home
@@ -45,7 +48,22 @@ const Navbar = () => {
               Add Book
             </Link>
           </div>
-          <div className="hidden lg:flex lg:flex-1 lg:justify-end"></div>
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+            {!store.token ? (
+              <button className="text-sm font-semibold leading-6 text-gray-900">
+                Log in <span aria-hidden="true">&rarr;</span>
+              </button>
+            ) : (
+              <button
+                onClick={() =>
+                  actions.logout(navigate(`/login`, { replace: true }))
+                }
+                className="text-sm font-semibold leading-6 text-gray-900"
+              >
+                Log out<span aria-hidden="true">&rarr;</span>
+              </button>
+            )}
+          </div>
         </nav>
         <Dialog
           as="div"
@@ -75,7 +93,7 @@ const Navbar = () => {
               <div className="-my-6 divide-y divide-gray-500/10">
                 <div className="space-y-2 py-6">
                   <Link
-                    to="/"
+                    to="/books"
                     className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                   >
                     Home
@@ -87,7 +105,22 @@ const Navbar = () => {
                     Add Book
                   </Link>
                 </div>
-                <div className="py-6"></div>
+                <div className="py-6">
+                  {!store.token ? (
+                    <button
+                      onClick={() =>
+                        actions.logout(navigate(`/login`, { replace: true }))
+                      }
+                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                    >
+                      Log in
+                    </button>
+                  ) : (
+                    <button className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
+                      Log out
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </Dialog.Panel>

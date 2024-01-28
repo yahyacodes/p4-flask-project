@@ -2,19 +2,20 @@ const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
       token: null,
-      message: null,
+      bookData: null,
       books: [],
     },
     actions: {
-      exampleFunction: () => {
-        getActions().changeColor(0, "green");
-      },
-
       syncToken: () => {
         const token = sessionStorage.getItem("token");
-        console.log("Application loaded SyncToken");
         if (token && token != "" && token != undefined)
           setStore({ token: token });
+      },
+
+      logout: () => {
+        sessionStorage.removeItem("token");
+        console.log("Logging out");
+        setStore({ token: null });
       },
 
       login: async (data) => {
@@ -27,7 +28,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         };
 
         try {
-          const res = await fetch("http://127.0.0.1:5555/login", opts);
+          const res = await fetch("http://127.0.0.1:5000/login", opts);
           if (res.status !== 200) {
             alert("Status != 200");
             return false;
@@ -42,25 +43,21 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
 
-      getMessage: async () => {
+      getBooks: async () => {
+        const store = getStore();
+        const opts = {
+          headers: {
+            Authorization: "Bearer " + store.token,
+          },
+        };
         try {
-          const resp = await fetch("http://127.0.0.1:5555/books");
+          const resp = await fetch("http://127.0.0.1:5000/books", opts);
           const data = await resp.json();
-          setStore({ message: data.message });
+          setStore({ bookData: data.bookData });
           return data;
         } catch (error) {
-          console.log("Error loading message from backend", error);
+          console.log("Error loading books data from backend", error);
         }
-      },
-      changeColor: (index, color) => {
-        const store = getStore();
-
-        const books = store.books.map((elm, i) => {
-          if (i === index) elm.background = color;
-          return elm;
-        });
-
-        setStore({ books: books });
       },
     },
   };

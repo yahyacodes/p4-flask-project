@@ -33,6 +33,7 @@ class Book(db.Model,SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     author = db.relationship('Author', backref='books')
     user = db.relationship('User', backref='books')
+    categories = db.relationship('BookCategory', secondary='book_category_association', back_populates='book')
 
 class Borrow(db.Model,SerializerMixin):
 
@@ -53,7 +54,12 @@ class BookCategory(db.Model,SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     categoryname = db.Column(db.String(255))
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
-    book = db.relationship('Book', backref='categories')
+    book = db.relationship('Book', secondary='book_category_association', back_populates='categories')
+
+class BookCategoryAssociation(db.Model):
+    __tablename__ = 'book_category_association'
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('book_category.id'), primary_key=True)
 
 class Author(db.Model,SerializerMixin):
 
