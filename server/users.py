@@ -1,5 +1,5 @@
 from flask import Flask, Blueprint, jsonify
-from models import db, User
+from models import db, User, TokenBlocklist
 from flask_restful import Api, Resource, reqparse, abort
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_marshmallow import Marshmallow
@@ -30,10 +30,16 @@ login_args = reqparse.RequestParser()
 login_args.add_argument('email', type=str, required=True)
 login_args.add_argument('password', type=str)
 
-# @jwt.user_lookup_loader
-# def user_lookup_callback(_jwt_header, jwt_data):
-#     identity = jwt_data['sub']
-#     return User.query.filter_by(id = identity).one_or_none()
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(id=identity).first()
+
+@jwt.token_in_blocklist_loader
+def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+    jti = jwt_payload["jti"]
+    token = db.session.query(TokenBlocklist).filter_by(jti=jti).first()
+    return token is not None
 
 class UserSchema(SQLAlchemyAutoSchema):
     class Meta:
@@ -45,9 +51,13 @@ class UserSchema(SQLAlchemyAutoSchema):
 user_schema = UserSchema()
 
 class UserLogin(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self):
-        return current_user.to_dict()
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        if not user:
+            return abort(404, detail="User not found")
+        return {"username": user.username, "user_id": user.id}
 
     def post(self):
         data = login_args.parse_args()
@@ -92,7 +102,7 @@ class UserById(Resource):
     def delete(self, id):
         User.query.filter_by(id = id).delete()
         db.session.commit()
-        return jsonify({'detail': 'User has been deleted successfully'})
+        return {'detail': 'User has been deleted successfully'}
 
 api.add_resource(UserLogin, '/login')
 api.add_resource(UsersRescources, '/users')

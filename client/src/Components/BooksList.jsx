@@ -2,6 +2,7 @@ import React from "react";
 import BookItems from "./BookItems";
 
 const BooksList = ({ books, deleteBook }) => {
+  console.log(books);
   return (
     <>
       <div>

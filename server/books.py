@@ -63,7 +63,6 @@ class BooksRescources(Resource):
     def get(self):
         books = Book.query.all()
         response = [book.to_dict() for book in books]
-        print(response)
         return response
     
     @jwt_required()

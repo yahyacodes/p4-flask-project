@@ -78,3 +78,9 @@ class Review(db.Model,SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     book = db.relationship('Book', backref='reviews')
     user = db.relationship('User', backref='reviews')
+
+class TokenBlocklist(db.Model):
+    __tablename__='tokenblocklist'
+    id = db.Column(db.Integer, primary_key=True)
+    jti= db.Column(db.String(36),nullable=False, index=True)
+    created_at=db.Column(db.DateTime,nullable=False)

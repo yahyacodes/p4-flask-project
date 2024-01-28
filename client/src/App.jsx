@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
 import BooksList from "./Components/BooksList";
 import Navbar from "./Components/Navbar";
@@ -11,17 +11,24 @@ import injectContext, { Context } from "./Store/appContext";
 
 function App() {
   const [data, setData] = useState([]);
-  const { store, actions } = useContext(Context);
+  const { store } = useContext(Context);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (store.token && store.token != "" && store.token != undefined)
-      fetch("http://127.0.0.1:5000/books")
-        .then((res) => res.json())
-        .then((data) => setData(data));
+    fetch("http://127.0.0.1:5555/books", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${store.token}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setData(data));
+    console.log(store.token);
   }, [store.token]);
 
   const addNewBook = (newBookData) => {
-    fetch("http://127.0.0.1:5000/books", {
+    fetch("http://127.0.0.1:5555/books", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -35,7 +42,7 @@ function App() {
   };
 
   const editBook = (bookData) => {
-    fetch("http://127.0.0.1:5000/books/" + bookData.id, {
+    fetch("http://127.0.0.1:5555/books/" + bookData.id, {
       method: "PATCH",
       headers: {
         Accept: "application/json",
@@ -49,7 +56,7 @@ function App() {
   };
 
   const deleteBook = (id) => {
-    fetch("http://127.0.0.1:5000/books/" + id, {
+    fetch("http://127.0.0.1:5555/books/" + id, {
       method: "DELETE",
     });
     let remaining = data.filter((item) => item.id !== id);
@@ -57,7 +64,7 @@ function App() {
   };
 
   const addUSer = (createNewUser) => {
-    fetch("http://127.0.0.1:5000/users", {
+    fetch("http://127.0.0.1:5555/users", {
       method: "POST",
       headers: {
         Accept: "application/json",

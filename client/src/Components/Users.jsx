@@ -13,8 +13,8 @@ const Users = () => {
       email: "",
       password: "",
     },
-    onSubmit: (data) => {
-      actions.login(data);
+    onSubmit: async (data) => {
+      await actions.login(data);
     },
   });
 
